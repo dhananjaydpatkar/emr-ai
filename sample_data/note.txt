@@ -1,0 +1,14 @@
+Patient: John Doe
+Date: 2023-10-27
+Reason: Follow-up for hypertension and new cough.
+
+Subjective: Patient reports persistent dry cough for 3 days. No fever. BP has been slightly elevated at home.
+Objective: BP 145/90. Lungs clear.
+Assessment:
+1. Hypertension, uncontrolled.
+2. Acute bronchitis.
+Plan:
+1. Increase Lisinopril to 20mg daily.
+2. Prescribe Benzonatate 100mg tid prn cough.
+3. Order Chest X-Ray.
+4. Follow up in 2 weeks.
