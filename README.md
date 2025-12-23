@@ -58,11 +58,15 @@ The system will:
 ### Sample Run
 
 ```bash
-(.venv) dhananjaypatkar@Dhananjays-MacBook-Air emr-note-agent % python main.py --note sample_data/note.txt --patient_id patient-123 
+.venv) dhananjaypatkar@Dhananjays-MacBook-Air emr-ai % python main.py --note sample_data/note.txt --patient_id patient-123
+
+--- Connecting to FHIR MCP Server ---
 --- Initializing Agents ---
 
 [Step 1] Initial Agent: Fetching Patient Context...
-InitialAgent: Fetching patient patient-123 from http://mock-fhir-server.org...
+InitialAgent: Fetching patient patient-123 via MCP...
+Processing request of type CallToolRequest
+Processing request of type ListToolsRequest
 Context retrieved for: Jason Argonaut
 
 [Step 2] Extractor Agent: Extracting FHIR Resources from Note...
@@ -75,11 +79,11 @@ Reconciliation complete.
 Validation complete.
 
 [Step 5] Outbound Agent: Persisting Data...
-OutboundAgent: Sending Bundle to http://mock-fhir-server.org...
-OutboundAgent: Successfully transmitted Bundle.
+OutboundAgent: Sending Bundle via MCP...
+Processing request of type CallToolRequest
+OutboundAgent: Received response: Successfully saved Bundle with 10 entries.
 OutboundAgent: Saved to final_output.json for verification.
 Pipeline successfully completed.
-(.venv) dhananjaypatkar@Dhananjays-MacBook-Air emr-note-agent % 
 
 ```
 
@@ -94,7 +98,9 @@ Pipeline successfully completed.
 │   ├── validator_agent.py
 │   └── outbound_agent.py
 ├── main.py                  # Pipeline Orchestrator
-├── mock_fhir_server.py      # Simple Mock Server
+├── fhir_mcp_server.py       # FHIR MCP Server (FastMCP)
 ├── fhir_models.py           # Pydantic Models
-└── final_output.json        # Pipeline Output
+├── final_output.json        # Pipeline Output
+├── design.md                # System Architecture
+└── mcp_ecosystem_design.md  # Future MCP Integrations
 ```
