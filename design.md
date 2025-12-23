@@ -1,6 +1,6 @@
 # EMR Note Agent Design & Architecture
 
-This document outlines the architecture of the EMR Note Agent, a system designed to extract FHIR resources from clinical notes using a **5-Stage Multi-Agent Pipeline**.
+This document outlines the architecture of the EMR Note Agent, a system designed to extract FHIR resources from clinical notes using a **5-Stage Multi-Agent Pipeline** powered by the **Model Context Protocol (MCP)**.
 
 ## Architecture Diagram
 
@@ -12,7 +12,7 @@ graph TD
     end
 
     subgraph "External Systems"
-        FHIR_Server[("FHIR Store")]
+        MCP_Server[("FHIR MCP Server")]
     end
 
     subgraph "Agent Workflow"
@@ -29,7 +29,7 @@ graph TD
 
     %% Flow
     PID --> Initial
-    FHIR_Server <--> Initial
+    MCP_Server <-->|"MCP Tool Call"| Initial
     
     Initial -- "Patient Context" --> Reconciler
     Note --> Extractor
@@ -38,7 +38,7 @@ graph TD
     Reconciler -- "Merged Bundle" --> Validator
     Validator -- "Validated Bundle" --> Outbound
     
-    Outbound --> FHIR_Server
+    Outbound -->|"MCP Tool Call"| MCP_Server
     Outbound --> Bundle
 
     %% Styling
@@ -47,7 +47,7 @@ graph TD
     style Reconciler fill:#fff3e0,stroke:#e65100
     style Validator fill:#e8f5e9,stroke:#1b5e20
     style Outbound fill:#ffebee,stroke:#b71c1c
-    style FHIR_Server fill:#eee,stroke:#333,stroke-dasharray: 5 5
+    style MCP_Server fill:#eee,stroke:#333,stroke-dasharray: 5 5
 ```
 
 ## Components
@@ -55,7 +55,7 @@ graph TD
 ### 1. Initial Agent (Context Fetcher)
 *   **Role**: Retrieval of patient context.
 *   **Input**: Patient ID.
-*   **Action**: Queries the FHIR Server to get `Patient` demographics.
+*   **Action**: Calls `get_patient_context` tool via MCP session.
 *   **Output**: `Patient` resource.
 
 ### 2. Extractor Agent (Clinical Logic)
@@ -85,11 +85,17 @@ graph TD
 ### 5. Outbound Agent (Persistence)
 *   **Role**: System interface.
 *   **Input**: Validated Bundle.
-*   **Action**: Sends a transaction Bundle to the FHIR Server.
+*   **Action**: Calls `save_bundle` tool via MCP session.
 *   **Output**: Commit status / Final JSON output.
+
+## MCP Integration & Future Flexibility
+
+This system is built using the **Model Context Protocol (MCP)** to abstract the FHIR server interaction.
+*   **Current State**: Includes a local `fhir_mcp_server.py` using FastMCP for testing and development.
+*   **Future/Production**: The `fhir_mcp_server.py` can be swapped for a production-grade MCP server, such as **WSO2's FHIR MCP Server** or any other MCP-compliant interface, without changing the agent code. The agents simply call `get_patient_context` or `save_bundle` regardless of the underlying implementation.
 
 ## Key Features
 
-*   **Sequential Chaining**: Each agent performs a specialized task, reducing error rates compared to a monolithic prompt.
+*   **Sequential Chaining**: Each agent performs a specialized task.
 *   **Context Isolation**: The Extractor focuses only on text, while the Reconciler handles business logic.
-*   **Mock/Real FHIR Integration**: Designed to swap between a mock implementation and real REST API calls.
+*   **Protocol Agnostic**: Interacts via standard MCP tools, enabling easy integration with enterprise FHIR gateways.

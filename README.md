@@ -4,19 +4,19 @@ A multi-agent system powered by **Google Gemini** that processes unstructured cl
 
 ## Architecture
 
-This project uses a **5-Agent Pipeline** to ensure accuracy and FHIR compliance:
+This project uses a **5-Agent Pipeline** connected via **Model Context Protocol (MCP)**:
 
-1.  **Initial Agent**: Fetches Patient Context (Mock/Real FHIR Server).
+1.  **Initial Agent**: Fetches Patient Context via MCP tool (`get_patient_context`).
 2.  **Extractor Agent**: Extracts unstructured data from the note.
 3.  **Reconciler Agent**: Merges patient context with extracted data.
 4.  **Validator Agent**: Validates the bundle against FHIR standards.
-5.  **Outbound Agent**: Persists the final bundle to the FHIR Server.
+5.  **Outbound Agent**: Persists the final bundle via MCP tool (`save_bundle`).
 
-See [design.md](design.md) for details.
+See [design.md](design.md) for details on MCP integration and flexible architecture (e.g., swapping for WSO2).
 
 ## Prerequisites
 
--   Python 3.9+
+-   Python 3.10+
 -   Google Cloud API Key (`GOOGLE_API_KEY`)
 
 ## Installation
@@ -36,15 +36,11 @@ See [design.md](design.md) for details.
 
 ## Usage
 
-### 1. Start the Mock FHIR Server (Optional)
-To verify endpoint connectivity, you can start the included mock server:
-
+### 1. The FHIR MCP Server
+The system runs a local MCP server (`fhir_mcp_server.py`) automatically as a subprocess when you run the pipeline. No separate start command is needed, though you can run it standalone to inspect tools:
 ```bash
-python mock_fhir_server.py
-# Running on http://localhost:8080
+mcp dev fhir_mcp_server.py
 ```
-
-*Note: The current agent implementation mocks the network calls internally for simplicity, but designed to work with this endpoint structure.*
 
 ### 2. Run the Agent Pipeline
 Run the main script to process a clinical note:
